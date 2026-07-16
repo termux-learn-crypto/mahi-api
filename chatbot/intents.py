@@ -236,6 +236,18 @@ INTENTS = [
         keywords=["affirm", "positive", "self love", "self care", "confidence"],
         phrases=["positive bolo", "affirmation do", "self love", "confidence badhao"],
     ),
+    Intent(
+        name="calculator",
+        keywords=["calculate", "calc", "solve", "jod", "guna", "bhaag", "minus", "plus", "sqrt", "square", "cube", "percentage", "percent"],
+        phrases=["calculate karo", "solve karo", "kitna hota hai", "batao kitna", "jod ke batao", "square root", "cube root", "percentage"],
+        priority=18,
+    ),
+    Intent(
+        name="translator",
+        keywords=["translate", "anuvaad", "tarjuma", " matlab"],
+        phrases=["translate karo", "english mein bolo", "hindi mein bolo", " matlab kya hai", "ka matlab kya"],
+        priority=18,
+    ),
 ]
 
 

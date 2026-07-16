@@ -9,6 +9,8 @@ from .facts import get_random_fact
 from .quotes import get_random_quote
 from .games import get_would_you_rather, get_two_truths_lie, get_tongue_twister
 from .names import get_name_meaning
+from .calculator import calculate, solve_math
+from .translator import translate
 
 
 class ChatEngine:
@@ -71,6 +73,10 @@ class ChatEngine:
             return self._handle_time()
         elif intent == "date":
             return self._handle_date()
+        elif intent == "calculator":
+            return self._handle_calculator(message)
+        elif intent == "translator":
+            return self._handle_translator(message)
 
         return get_response(
             intent,
@@ -181,6 +187,47 @@ class ChatEngine:
         ]
         return random.choice(responses)
 
+    def _handle_calculator(self, message: str) -> str:
+        msg = message.lower()
+        msg = re.sub(r'(calculate|calc|solve|kitna hota hai|batao kitna|jod ke batao|karo|hai|ho|hain|batao)', '', msg).strip()
+
+        math_result = solve_math(msg)
+        if math_result:
+            return math_result
+
+        calc_result = calculate(msg)
+        if calc_result:
+            return f"Answer: {calc_result['expression']} = {calc_result['result']}"
+
+        nums = re.findall(r'[\d.]+', msg)
+        if len(nums) >= 2:
+            a, b = float(nums[0]), float(nums[1])
+            if '+' in msg or 'jod' in msg or 'plus' in msg:
+                return f"{int(a)} + {int(b)} = {int(a + b)}"
+            elif '-' in msg or 'minus' in msg:
+                return f"{int(a)} - {int(b)} = {int(a - b)}"
+            elif '*' in msg or 'x' in msg or 'guna' in msg or 'into' in msg:
+                return f"{int(a)} × {int(b)} = {int(a * b)}"
+            elif '/' in msg or 'bhaag' in msg or 'divided' in msg:
+                if b == 0:
+                    return "Zero se divide nahi ho sakta! 😅"
+                return f"{int(a)} ÷ {int(b)} = {a / b:.2f}"
+
+        return "Kya calculate karna hai? Jaise: '5 + 3' ya '100 * 5'"
+
+    def _handle_translator(self, message: str) -> str:
+        msg = message.lower()
+        msg = re.sub(r'(translate|anuvaad|tarjuma|karo|mein|bolo)', '', msg).strip()
+
+        if not msg:
+            return "Kya translate karna hai? Bolo word ya sentence!"
+
+        result = translate(msg)
+        if result:
+            return f"{result['direction']}: \"{result['original']}\" → \"{result['translated']}\""
+
+        return f"Mujhe \"{msg}\" translate karna nahi aata. Par koshish karunga next time! 😊"
+
     def _get_time_context(self) -> str:
         hour = datetime.now().hour
         if 5 <= hour < 12:
@@ -244,6 +291,8 @@ class ChatEngine:
             "would_you": "happy",
             "truth_lie": "happy",
             "affirmation": "happy",
+            "calculator": "neutral",
+            "translator": "neutral",
             "unknown": "confused",
         }
         return emotion_map.get(intent, "neutral")
