@@ -12,6 +12,7 @@ from .names import get_name_meaning
 from .calculator import calculate, solve_math
 from .translator import translate
 from .mobile import detect_mobile_command
+from .database import save_user, update_user, save_message, get_messages, get_user_stats
 
 
 class ChatEngine:
@@ -21,6 +22,8 @@ class ChatEngine:
     def chat(self, user_id: str, message: str) -> dict:
         session = self.sessions.get_session(user_id)
 
+        save_user(user_id, session.user_name)
+
         intent = classify_intent(message)
 
         user_name = session.user_name
@@ -29,6 +32,7 @@ class ChatEngine:
             if extracted:
                 session.user_name = extracted
                 user_name = extracted
+                update_user(user_id, name=extracted)
 
         user_mood = detect_emotion_intensity(message)
         time_context = self._get_time_context()
@@ -42,6 +46,10 @@ class ChatEngine:
 
         session.add_message("user", message, intent=intent, emotion=user_mood["emotion"])
         session.add_message("assistant", response, intent=intent, emotion=assistant_emotion)
+
+        save_message(user_id, "user", message, intent=intent, emotion=user_mood["emotion"])
+        save_message(user_id, "assistant", response, intent=intent, emotion=assistant_emotion)
+        update_user(user_id, increment_messages=True)
 
         result = {
             "response": response,
