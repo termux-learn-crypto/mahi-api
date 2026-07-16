@@ -199,6 +199,43 @@ INTENTS = [
         keywords=["good morning", "subah", "uth gaya", "morning"],
         phrases=["good morning", "subah ho gayi", "uth gaya hu", "morning"],
     ),
+    Intent(
+        name="daily_fact",
+        keywords=["fact", "facts", "kuch pata", "interesting fact", "did you know"],
+        phrases=["fact sunao", "kuch fact batao", "interesting fact", "did you know", "kuch pata hai"],
+    ),
+    Intent(
+        name="quote",
+        keywords=["quote", "quotes", "vachan", "kathan", "suvichar"],
+        phrases=["quote sunao", "kuch quote batao", "suvichar sunao", "motivational quote"],
+    ),
+    Intent(
+        name="tongue_twister",
+        keywords=["tongue twister", "ultrajhulha", "jibba kabba"],
+        phrases=["tongue twister sunao", "tongue twister batao", "ultrajhulha batao", "jibba kabba sunao"],
+        priority=10,
+    ),
+    Intent(
+        name="name_meaning",
+        keywords=["naam ka matlab", "name meaning", "naam ka arth"],
+        phrases=["naam ka matlab", "meaning of", "naam ka arth", "ka matlab kya hai", "ka meaning batao", "ka arth"],
+        priority=20,
+    ),
+    Intent(
+        name="would_you",
+        keywords=["would you rather", "kya karoge", "choose karo"],
+        phrases=["would you rather", "kya karoge tum", "choose karo"],
+    ),
+    Intent(
+        name="truth_lie",
+        keywords=["truth lie", "two truths", "sach jhooth"],
+        phrases=["two truths one lie", "sach jhooth batao", "truth lie khelo"],
+    ),
+    Intent(
+        name="affirmation",
+        keywords=["affirm", "positive", "self love", "self care", "confidence"],
+        phrases=["positive bolo", "affirmation do", "self love", "confidence badhao"],
+    ),
 ]
 
 

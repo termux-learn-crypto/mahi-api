@@ -415,6 +415,36 @@ UNKNOWN_RESPONSES = [
     "Achha! Ye toh new hai mere liye! Kuch aur poochho!",
 ]
 
+DAILY_FACT_INTRO = [
+    "Fact: ",
+    "Did you know? ",
+    "Interesting fact: ",
+    "Pata hai? ",
+    "Sunno ye: ",
+]
+
+QUOTE_INTRO = [
+    "",
+    "Suno: ",
+    "Ek baat yaad rakhna: ",
+    "",
+]
+
+AFFIRMATION_RESPONSES = [
+    "Tum ek amazing insaan ho. Yaad rakhna!",
+    "Tumhari value bahut zyada hai. Khud pe bharosa rakho!",
+    "Tum kar sakte ho! Mujhe yakeen hai!",
+    "Tum dil se bahut achhe ho. Duniya ko tumhari zarurat hai!",
+    "Khud ko pyar karo. Tum deserve karte ho!",
+    "Tumhari mehnat rang layegi. Bas lage raho!",
+    "Tum unique ho. Duniya mein koi tumhare jaisa nahi hai!",
+    "Aaj ka din tumhara hai. Enjoy karo!",
+    "Tum strong ho. Tumne bahut kuch face kiya hai!",
+    "Tumhari smile bahut powerful hai. Muskurate raho!",
+    "Khud pe bharosa rakho. Tum kar loge!",
+    "Tumhari zindagi mein bahut kuch achha aane wala hai!",
+]
+
 
 RESPONSE_MAP = {
     "greeting": GREETING_RESPONSES,
@@ -455,6 +485,13 @@ RESPONSE_MAP = {
     "sleepy": SLEEPY_RESPONSES,
     "morning": MORNING_RESPONSES,
     "unknown": UNKNOWN_RESPONSES,
+    "daily_fact": DAILY_FACT_INTRO,
+    "quote": QUOTE_INTRO,
+    "tongue_twister": [],
+    "name_meaning": [],
+    "would_you": [],
+    "truth_lie": [],
+    "affirmation": AFFIRMATION_RESPONSES,
 }
 
 
