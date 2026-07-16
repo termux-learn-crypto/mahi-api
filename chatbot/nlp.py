@@ -118,3 +118,48 @@ def extract_name(text: str, after_words: list[str] = None) -> str | None:
             if name and len(name) > 1:
                 return name.capitalize()
     return None
+
+
+INTENSITY_LOW = {"thoda", "halka", "kabhi", "thodi", "kuch", "bas", "jaise"}
+INTENSITY_HIGH = {"bahut", "ekdum", "zyada", "bohot", "sach", "bilkul", "poora", "poori", "sara", "sari", "totally", "really", "very"}
+
+EMOTION_KEYWORDS = {
+    "happy": ["khush", "happy", "achha", "maza", "mast", "badhiya", "awesome", "great", "nice", "amazing", "excellent", "wonderful"],
+    "sad": ["sad", "dukhi", "dukh", "bura", "udas", "roya", "rona", "hurt", "broken", "toota", "toot gaya", "dil toota"],
+    "angry": ["gussa", "angry", "irritate", "naraz", "krodh", "furious"],
+    "frustrated": ["frustrated", "pareshan", "thak gaya", "nahi ho raha", "overwhelmed", "tang", "mood off"],
+    "excited": ["excited", "josh", "waiting", "cant wait", "intezar"],
+    "confused": ["confuse", "samajh nahi", "pata nahi", "unclear", "doubt"],
+}
+
+
+def detect_emotion_intensity(text: str) -> dict:
+    text_lower = text.lower().strip()
+    words = set(text_lower.split())
+
+    detected_emotion = "neutral"
+    intensity = "medium"
+
+    for emotion, keywords in EMOTION_KEYWORDS.items():
+        for kw in keywords:
+            if kw in text_lower:
+                detected_emotion = emotion
+                break
+        if detected_emotion != "neutral":
+            break
+
+    has_low = bool(words & INTENSITY_LOW)
+    has_high = bool(words & INTENSITY_HIGH)
+
+    exclamation_count = text.count("!")
+    caps_ratio = sum(1 for c in text if c.isupper()) / max(len(text), 1)
+
+    if has_high or exclamation_count >= 2 or caps_ratio > 0.3:
+        intensity = "high"
+    elif has_low:
+        intensity = "low"
+
+    return {
+        "emotion": detected_emotion,
+        "intensity": intensity,
+    }

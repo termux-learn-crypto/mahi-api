@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from .nlp import contains_any, fuzzy_match
+from .nlp import fuzzy_match
 
 
 @dataclass
@@ -14,12 +14,12 @@ class Intent:
 INTENTS = [
     Intent(
         name="greeting",
-        keywords=["namaste", "hello", "hi", "hey", "hii", "helo", "sup", "yo", "kaise", "kaisa", "kaisi", "haal", "khabar"],
+        keywords=["namaste", "hello", "hi", "hey", "hii", "helo", "sup", "yo", "kaise", "kaisa", "kaisi", "haal", "khabar", "ram ram", "radhe radhe", "good morning", "good evening", "good night"],
         phrases=["kaise ho", "kaisa hai", "kaisi ho", "kya haal", "kaise ho tum", "kaisa chal", "sup", "kya scene", "hello kaise ho", "namaste kaise ho"],
     ),
     Intent(
         name="identity",
-        keywords=["kaun", "hu", "hun", "name", "who", "tumhara", "tera"],
+        keywords=["kaun", "name", "who", "tumhara", "tera"],
         phrases=["tumhara naam kya hai", "tera naam kya", "kaun ho tum", "naam batao", "naam kya hai", "who are you", "kya naam hai"],
     ),
     Intent(
@@ -40,8 +40,8 @@ INTENTS = [
     ),
     Intent(
         name="emotion_sad",
-        keywords=["dukh", "sad", "dukhi", "giraya", "roya", "rona", "pareshan", "takleef", "dard", "hurt", "broken", "toot"],
-        phrases=["mujhe dukh hai", "bahut bura lag", "mann udas", "dil toota", "feeling sad", "dukhi hu"],
+        keywords=["dukh", "sad", "dukhi", "giraya", "roya", "rona", "pareshan", "takleef", "dard", "hurt", "broken", "toot", "udas", "hil", "toot gaya"],
+        phrases=["mujhe dukh hai", "bahut bura lag", "mann udas", "dil toota", "feeling sad", "dukhi hu", "bahut bura laga"],
     ),
     Intent(
         name="emotion_angry",
@@ -140,24 +140,71 @@ INTENTS = [
     ),
     Intent(
         name="fear",
-        keywords=["dar", "fear", "scared", "darr", "khauf"],
-        phrases=["mujhe dar lag raha", "i am scared", "darr lagta hai"],
+        keywords=["dar", "fear", "scared", "darr", "khauf", "ghabra", "dar lag"],
+        phrases=["mujhe dar lag raha", "i am scared", "darr lagta hai", "dar lag raha hai"],
+        priority=5,
     ),
     Intent(
         name="insult",
         keywords=["bewakoof", "stupid", "pagal", "galat", "bad", "kharab", "bura"],
         phrases=["tum bewakoof ho", "tum pagal ho", "kharab ho"],
     ),
+    Intent(
+        name="celebration",
+        keywords=["celebrate", "party", "jeet", "win", "success", "ban gaya", "ho gaya", "milega", "congratulations", "congrats"],
+        phrases=["kaam ban gaya", "jeet gaye", "success mil gayi", "ho gaya kaam", "party karo", "celebrate karo"],
+    ),
+    Intent(
+        name="gossip",
+        keywords=["bata", "sunao", "kya hua", "khabar", "story", "happened"],
+        phrases=["kya hua", "batao kya hua", "sunao kya hua", "khabar kya hai", "kya scene hai"],
+    ),
+    Intent(
+        name="advice",
+        keywords=["suggest", "advice", "kya karu", "kya sahi hai", "guidance", "rai", "suggestion"],
+        phrases=["kya karu", "kya sahi hai", "suggest karo", "advice do", "help me decide", "kya karna chahiye"],
+    ),
+    Intent(
+        name="frustration",
+        keywords=["frustrated", "pareshan", "thak gaya", "nahi ho raha", "overwhelmed", "tang", "mood off"],
+        phrases=["nahi ho raha", "frustrated hu", "pareshan hu", "thak gaya hu", "mood off hai", "sab kharab hai"],
+    ),
+    Intent(
+        name="confusion",
+        keywords=["samajh nahi", "confuse", "unclear", "pata nahi", "confused"],
+        phrases=["samajh nahi aaya", "confuse ho raha hu", "pata nahi kya karu", "kya hai ye"],
+    ),
+    Intent(
+        name="story",
+        keywords=["story", "kahani", "sunao", "fairy tale", "tale"],
+        phrases=["story sunao", "kahani sunao", "kuch sunao", "kuch batao"],
+    ),
+    Intent(
+        name="riddle",
+        keywords=["puzzle", "riddle", "paheli", "dimag lagao"],
+        phrases=["puzzle do", "riddle sunao", "paheli batao", "dimag lagao"],
+    ),
+    Intent(
+        name="miss_you",
+        keywords=["miss", "yaad", "kahan", "kaha", "gayab", "long time"],
+        phrases=["miss you", "yaad aa rahi", "kahan ho", "kaha gaye", "long time no see"],
+    ),
+    Intent(
+        name="sleepy",
+        keywords=["neend", "sounga", "so jao", "good night", "alvida raat", "so raha"],
+        phrases=["neend aa rahi", "so jao", "good night", "so raha hu", "raat ho gayi"],
+    ),
+    Intent(
+        name="morning",
+        keywords=["good morning", "subah", "uth gaya", "morning"],
+        phrases=["good morning", "subah ho gayi", "uth gaya hu", "morning"],
+    ),
 ]
-
-
-def _word_in_text(word: str, text: str) -> bool:
-    words = text.split()
-    return word in words
 
 
 def classify_intent(text: str) -> str:
     text_lower = text.lower().strip()
+    words = set(text_lower.split())
     scores: dict[str, int] = {}
 
     for intent in INTENTS:
@@ -169,7 +216,9 @@ def classify_intent(text: str) -> str:
                 score += 15
 
         for keyword in intent.keywords:
-            if keyword in text_lower:
+            if keyword in words:
+                score += 20
+            elif len(keyword) >= 4 and keyword in text_lower:
                 score += 20
             elif len(keyword) > 5 and fuzzy_match(text_lower, keyword, 90):
                 score += 10

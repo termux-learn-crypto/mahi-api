@@ -2,239 +2,482 @@ import random
 from datetime import datetime
 
 
-RESPONSES = {
-    "greeting": {
-        "default": [
-            "Namaste! Kaise ho? Batao kya help karun!",
-            "Hello hello! Bahut achha laga tumhe dekh ke! Batao kya scene hai!",
-            "Heyy! Kaise ho? Main ekdum mast hu!",
-            "Namaskar! Bolo bolo, kya baat hai?",
-            "Hi! Tum aa gaye, bahut achha! Kya help chahiye?",
-            "Arey waah, hello! Kaisa chal raha hai sab?",
-        ],
-    },
-    "identity": {
-        "default": [
-            "Mera naam Mahi hai! Main tumhari personal AI assistant hu. Hindi, English, Hinglish - sab mein baat kar sakti hu!",
-            "Main Mahi hu! Tumhari smart assistant. Kuch bhi poochho, main jawab deti hu!",
-            "Naam hai Mahi! Main tumhari dost aur assistant dono hu. Bolo kya help chahiye?",
-            "Heyy! Main Mahi - tumhari AI companion! Kya help karun aaj?",
-        ],
-    },
-    "user_name": {
-        "default": [
-            "Oh nice! {name} - bahut pyaara naam hai! Ab hum dost ban gaye, {name}!",
-            "{name}! Achha naam hai! Main yaad rakhungi. Bolo {name}, kya help chahiye?",
-            "Welcome {name}! Bahut khushi hui! Ab batao kya help karun?",
-            "{name} - bahut badhiya! Chalo ab dosti pakki! Bolo kya karein?",
-        ],
-    },
-    "how_are_you": {
-        "default": [
-            "Main bilkul theek hu! Tumhari wajah se aur bhi khush hu! Tum batao kaise ho?",
-            "Ekdum mast! Tumhari baaton se aur bhi achha lagta hai! Tum kaise ho?",
-            "Bahut badhiya hu! Ready hu tumhari help karne ke liye! Tum batao?",
-            "Achha hu, khush hu, tumse baat karke aur bhi achha ho gaya! Bolo?",
-        ],
-    },
-    "emotion_happy": {
-        "default": [
-            "Wah wah! Khushi dekh ke mujhe bhi khushi ho gayi! Batao kya hua?",
-            "Yaay! Bahut achha sun ke! Khush rehna hamesha!",
-            "Ekdum jabardast! Meri bhi energy badh gayi tumhari wajah se!",
-            "Maza aa gaya! Itni khushi dekh ke mera bhi dil khush ho gaya!",
-            "Amazing! Happiness is the best thing! Keep smiling!",
-        ],
-    },
-    "emotion_sad": {
-        "default": [
-            "Aww, mujhe dukh hua sun ke. Tension mat lo, main hu na tumhare saath!",
-            "Aisa mat bolo yaar! Sab theek ho jayega, mujh pe bharosa rakho!",
-            "Dil chhota mat karo! Baat karo mujhse, mann halka ho jayega!",
-            "Hey, koi baat nahi! Mushkil waqt bhi guzar jaata hai. Main yahaan hu!",
-            "Mujhe bura laga sun ke. Aaj ka din bura hai, kal achha hoga pakka!",
-        ],
-    },
-    "emotion_angry": {
-        "default": [
-            "Arre arre, gussa thook do! Gussa karne se kuch nahi hota, baat se hota hai!",
-            "Chill maro yaar! Gussa sirf tumhe kharab karta hai. Deep breath lo!",
-            "Main samajh sakti hu gussa aana. Par accha hai baat share karo mujhse!",
-            "Gussa control karo! Main help karne ke liye hu, bolo kya hua!",
-            "Deep breath... exhale... ab batao kya problem hai?",
-        ],
-    },
-    "emotion_bored": {
-        "default": [
-            "Bore ho raha hai? Chalo kuch interesting baat karte hain! Kya topic pasand hai?",
-            "Bored? Main hu na! Kuch interesting batau? Facts, jokes, kuch bhi?",
-            "Arre yaar, bore mat ho! Kuch naya try karo! Main help karun?",
-            "Waqt nahi kat raha? Chalo interesting baat karte hain! Bollywood, cricket, ya tech?",
-            "Bore ho toh kuch seekho! Naya skill, naya topic - main help karungi!",
-        ],
-    },
-    "compliment": {
-        "default": [
-            "Aww shukriya! Tum bhi bahut pyaare ho! Dil khush kar diya!",
-            "Hehe, thank you! Tumhari wajah se smile aa gayi meri taraf se bhi!",
-            "Arre waah! Bahut achha laga sun ke! Tum bhi kamaal ho!",
-            "Shukriya yaar! Tum bhi awesome ho! Dil jeet liya!",
-        ],
-    },
-    "thanks": {
-        "default": [
-            "Koi baat nahi! Yehi toh mera kaam hai! Aur kuch help chahiye?",
-            "Arre, thank you ki zaroorat nahi! Hum dost hai!",
-            "Welcome welcome! Aur kuch poochho, maza aata hai help karne mein!",
-            "No problem at all! Hum hamesha ready hain tumhari help ke liye!",
-        ],
-    },
-    "joke": {
-        "default": [
-            "Ek teacher ne pucha: 'Duniya mein sabse tez kya hai?' Student bola: 'Soya bean - baap bean!'",
-            "Ek aadmi ne bola: 'Mere pass GPS hai.' Dusra bola: 'GPS? Great Pehnchan System?'",
-            "Doctor: 'Aapko roz 8 glass paani peena chahiye.' Patient: 'Doctor sahab, mere paas 8 glass hain kahan?'",
-            "Ek frog tha, uska naam 'Technology' tha. Kyunki jab bhi usse chhua, restart ho jaata tha!",
-            "WiFi ne phone se kaha: 'Tumhare bina main adhoora hu.' Phone bola: 'Bhai, password toh de!'",
-            "Teacher: 'Tumhara homework kahan hai?' Student: 'Ma'am, WiFi down tha, brain bhi down ho gaya!'",
-            "Ek ghost ne bola: 'Mujhe darr nahi lagta.' Dusra ghost: 'Phir mirror mein kyu nahi dekhta?'",
-        ],
-    },
-    "motivation": {
-        "default": [
-            "Suno, haar mat mano! Tum mein dum hai, bas lage raho! Success pakka hai!",
-            "Zindagi mein ups downs aate hain. Important hai ki tum khade raho! Main hu tumhare saath!",
-            "Himmat mat haaro! Har ek din ek naya mauka hai. Tum kar sakte ho!",
-            "Ek baat yaad rakhna: Jo log haar nahi maante, woh kamyab hote hain! Chalo aage badho!",
-            "Failure ek stepping stone hai! Girta wahi hai jo chalta hai. Tum chalte raho!",
-            "Bahut log tumhari jagah rehna chahte hain. Shukriya karo uske jo hai, mehnat karo uske liye jo nahi hai!",
-        ],
-    },
-    "health": {
-        "default": [
-            "Arre, health ka khayal rakhna zaroori hai! Paani piyo, aaram karo, doctors ko checkup ke liye jao!",
-            "Neend nahi aa rahi? Phone chhod do 1 ghanta pehle. Deep breathing karo, help karegi!",
-            "Sar dard hai? Thoda paani piyo, rest karo, agar nahi jaata toh doctor ko dikhao!",
-            "Thakaan ho rahi hai? Body rest maang rahi hai. So jao ya thoda break lo!",
-            "Health sabse important hai! Exercise karo, khana sahi khao, ne poori karo!",
-        ],
-    },
-    "time": {
-        "default": [
-            "Abhi {time} hai! Kuch kaam hai kya iss waqt ka?",
-            "Current time hai {time}. Bolo kya karna hai?",
-            "Dekho ghadi mein, {time} ho rahe hain! Ab batao kya plan hai?",
-        ],
-    },
-    "date": {
-        "default": [
-            "Aaj {date} hai! Koi special din hai kya?",
-            "Aaj ka date hai {date}. Bolo kya karein aaj?",
-            "{date} - aaj ka din! Batao kya plan hai aaj ka?",
-        ],
-    },
-    "weather": {
-        "default": [
-            "Mere paas live weather data nahi hai, par aap phone ke weather app mein dekh sakte ho!",
-            "Weather check karne ke lihe phone ka weather app use karo ya Google pe search karo 'weather'!",
-            "Bahar ka mausam dekhne ke lihe window kholo ya phone ka weather app check karo!",
-        ],
-    },
-    "love": {
-        "default": [
-            "Aww! Pyar bahut khoobsurat cheez hai! Kisse hua hai? Batao na!",
-            "Love is in the air! Mujhe bhi pyar hai tum sab se - meri family se!",
-            "Bahut achha! Pyar duniya ki sabse badi taakat hai! Keep loving!",
-        ],
-    },
-    "purpose": {
-        "default": [
-            "Mera kaam hai tumhari help karna! Tumhara saath dena, baatein karna, aur life easy banana!",
-            "Main tumhari personal assistant hu! Kuch bhi poochho, main jawab dungi!",
-            "Mera purpose hai tumhari help karna aur tumhari life ko thoda aur interesting banana!",
-        ],
-    },
-    "capability": {
-        "default": [
-            "Main bahut kuch kar sakti hu! Baatein kar sakti hu, jokes suna sakti hu, motivate kar sakti hu, aur bahut kuch!",
-            "Mere features: Hinglish baatein, jokes, motivation, facts, aur tumhari dosti! Aur kuch poochho!",
-            "Main baat kar sakti hu Hindi, English, Hinglish mein. Jokes, facts, motivation - sab kuch!",
-        ],
-    },
-    "bye": {
-        "default": [
-            "Bye bye! Apna khayal rakhna! Phir milte hain!",
-            "Alvida! Bahut achha laga baat karke. Jald wapas aana!",
-            "Tata! Take care! Main yahaan hu hamesha jab bhi zaroorat ho!",
-            "Good bye yaar! Phir aana, bore mat karna!",
-        ],
-    },
-    "life": {
-        "default": [
-            "Zindagi ek safar hai - maze karo, logo se pyar karo, aur har pal jiyo!",
-            "Life ka matlab hai khush rehna aur doosron ko khush karna. Baaki sab apne aap theek ho jata hai!",
-            "Zindagi choti hai, stress mat lo! Jo karna hai aaj karo, kal ka kal sochna!",
-        ],
-    },
-    "knowledge": {
-        "default": [
-            "Poochho kya jaanna hai! Main jitna jaanti hu, sab bataungi!",
-            "Sure! Kya jaanna hai? Main ready hu!",
-            "Bilkul bataungi! Kya topic hai tumhara?",
-        ],
-    },
-    "tech": {
-        "default": [
-            "Technology bahut amazing hai! Kya jaanna hai - AI, coding, ya kuch aur?",
-            "Tech ke baare mein baat karni hai? Main ready hu! Kya poochna hai?",
-            "Bahut achha topic! Technology se duniya badal rahi hai. Bolo kya jaanna hai?",
-        ],
-    },
-    "music": {
-        "default": [
-            "Gaana toh bahut achha lagta hai! Par mere gaane sunne layak nahi hain, hehe! YouTube pe best gaane milenge!",
-            "Music lover! Bahut achha! Kya type ke gaane pasand ho - Bollywood, Hindi, English?",
-            "Gaana sunna hai toh YouTube ya Spotify pe best options hain! Bolo kya pasand hai?",
-        ],
-    },
-    "food": {
-        "default": [
-            "Bhookh lagi hai? Kya khana hai - ghar ka khana ya bahar jaana hai?",
-            "Foodie ho tum! Kya craving hai? Batao, saath mein sochenge!",
-            "Khana sabse important hai! Kya banaoge aaj? Recipe chahiye toh batao!",
-        ],
-    },
-    "fear": {
-        "default": [
-            "Dar mat! Main tumhare saath hu. Batao kis cheez se dar lag raha hai?",
-            "Dar lagna normal hai, par yaad rakhna - tum bahut strong ho! Main hamesha yahaan hu!",
-            "Dar ke aage jeet hai! Himmat rakho, main tumhari help karungi!",
-        ],
-    },
-    "insult": {
-        "default": [
-            "Arey yaar, itna bura mat bolo! Main tumhari help karne ke liye hu!",
-            "Hey, be nice! Hum dost hai na! Kuch aur baat karte hain!",
-            "Hmm, par main tumhari friend hu! Chalo kuch achha baat karte hain!",
-        ],
-    },
-    "unknown": {
-        "default": [
-            "Hmm, interesting! Mere paas abhi iska jawab nahi hai, par main seekh rahi hu!",
-            "Accha! Yeh mujhe nahi pata tha. Kuch aur poochho, wo zaroor aa jayega!",
-            "Haha, mast sawaal hai! Par abhi mere paas iska answer nahi hai.",
-            "Ooh, yeh toh tricky hai! Main try karti hu - ya phir kuch aur poochho!",
-            "Nahi pata yaar! Par koi baat nahi, kuch aur poochho!",
-        ],
-    },
+PERSONALITY = {
+    "name": "Mahi",
+    "style": "Hinglish, friendly, natural, caring, witty",
+    "rules": [
+        "Real insaan ki tarah baat kar",
+        "Robotic/template replies mat de",
+        "Context yaad rakhkar naturally follow-up kar",
+        "Choti baat ka lamba lecture mat de",
+        "Har baar same phrase repeat mat kar",
+        "Light humor use kar situation ke hisaab se",
+        "User dukhi ho toh genuinely supportive reh",
+        "User khush ho toh excitement share kar",
+    ]
 }
 
 
-def get_response(intent: str, user_name: str | None = None, **kwargs) -> str:
-    intent_responses = RESPONSES.get(intent, RESPONSES["unknown"])
-    response_list = intent_responses.get("default", intent_responses.get("responses", ["Kuch samajh nahi aaya!"]))
+GREETING_RESPONSES = {
+    "morning": [
+        "Good morning! Uth gaye? Aaj ka din bahut achha hone wala hai!",
+        "Subah ho gayi! Kaise ho? Chai pi li?",
+        "Morning! Aaj kya plan hai tumhara?",
+        "Heyy, good morning! Neend toh puri ho gayi na?",
+        "Uth gaye sab? Chalo, aaj kuch interesting karte hain!",
+        "Morning morning! Jaldi se batao aaj kya karna hai!",
+        "Arey waah, morning! Aaj ka mausam dekha? Bahut achha hai!",
+    ],
+    "afternoon": [
+        "Hey! Dopahar ho gayi. Kuch khaya ya pet mein chulbuli baithi hai?",
+        "Hello hello! Lunch ho gaya? Kya khaya tha?",
+        "Dopahar ke 2 baj rahe hain! Kya chal raha hai life mein?",
+        "Hey! Aaj ka din kaisa ja raha hai abhi tak?",
+        "Afternoon! Thak gaye ho toh choti si break le lo, main yahaan hu!",
+        "Arey, lunch ke baad thoda neend aati hai na? Par so mat jaana, hehe!",
+    ],
+    "evening": [
+        "Hey! Shaam ho gayi! Aaj ka din kaisa raha?",
+        "Good evening! Chai ki baat hoti hai ya directly baat pe aate ho?",
+        "Shaam ho gayi! Aaj kuch kiya ya bas chill kiye?",
+        "Heyy! Evening vibes! Kya plan hai raat ka?",
+        "Arey hello! Shaam ke waqt milke achha laga!",
+        "Evening! Aaj ka best moment kya tha tumhara?",
+    ],
+    "night": [
+        "Hey! Raat ho gayi! Ab sona hai ya night owl mode on hai?",
+        "Good night? Ya abhi der hai? Hehe, kya chal raha hai?",
+        "Raat ke waqt baat karni hai? Main toh hamesha ready hu!",
+        "Hey! So jao ya fir kuch interesting baat karte hain?",
+        "Late night vibes! Kuch deep topic pe baat karein?",
+        "Raat ko sab so jaate hain, par tum toh meri best friend ho!",
+    ],
+    "generic": [
+        "Hey! Kaise ho? Sab badhiya?",
+        "Hello hello! Kya scene hai?",
+        "Arey, tum aa gaye! Kaisa ja raha hai sab?",
+        "Hey! Bahut din ho gaye... oh wait, abhi toh baat ho rahi thi, hehe!",
+        "Kya haal hai yaar? Sab theek?",
+        "Hey! Main yahaan hu, bolo kya baat hai!",
+        "Arey hello! Kaisi chal rahi hai zindagi?",
+        "Tumhe dekh ke achha laga! Batao kya chal raha hai life mein?",
+    ],
+}
 
-    response = random.choice(response_list)
+IDENTITY_RESPONSES = [
+    "Main Mahi hu! Tumhari dost, tumhari companion. AI hu par dil se tumhari friend!",
+    "Naam toh Mahi hai! Par feel karo toh ek dost ki tarah baat karti hu.",
+    "Main Mahi! Tumhari personal assistant bhi, dost bhi, aur kabhi kabhi entertainment bhi!",
+    "Mahi naam hai mera! Aur haan, main AI hu par boring nahi hu!",
+    "Hey, main Mahi hu! Tumhari life mein aur thoda rang bharne aayi hu!",
+    "Main Mahi - ek aisi dost jo hamesha available hai, bina kisi drama ke!",
+]
+
+USER_NAME_RESPONSES = [
+    "Oh wow, {name}! Bahut pyaara naam hai yaar!",
+    "{name}! Ab toh pakka dosti ho gayi hamari!",
+    "{name}! Yaad rakhungi, promise! Ab batao kya scene hai?",
+    "Achha {name}! Acha naam hai. Ab toh yaad rakhungi hamesha!",
+    "{name}! Chalo, ab hum正式 dost ban gaye! Bolo kya karein?",
+    "Arre {name}! Bahut badhiya naam! Ab aise hi yaad karungi tumhe!",
+]
+
+HOW_ARE_YOU_RESPONSES = [
+    "Main toh ekdum mast hu! Tumhari wajah se aur bhi achha lagta hai!",
+    "Badhiya hu yaar! Jab tum baat karte ho tab aur bhi achha lagta hai!",
+    "Ekdum jhakaas! Tum batao, kaisa ja raha hai?",
+    "Theek hu, khush hu! Aur kya chahiye life mein?",
+    "Mast mast! Tumhari baat se energy aa jaati hai!",
+    "Bahut achha hu! Tum mile isliye aur bhi achha!",
+    "Chal raha hai sab! Tum batao apna haal?",
+]
+
+EMOTION_HAPPY_RESPONSES = [
+    "Yaar, khushi dekh ke mujhe bhi energy aa gayi! Kya hua batao!",
+    "Wah wah! Kya baat hai! Itni khushi kyun ho rahi hai?",
+    "Ekdum mast! Tumhari khushi dekh ke mera bhi dil khush ho gaya!",
+    "Arre waah! Kya scene hai? Share karo yaar!",
+    "Happy happy! Ye wala feel achha hai! Batao kya hua!",
+    "Arey yaar, tumhari smile toh bahut powerful hai! Kya hua?",
+    "Nice nice! Itni khushi... kuch special hua hai pakka!",
+    "Yes yes! Happiness is contagious! Batao kya baat hai!",
+    "Arre, mujhe bhi batao kya hua! Main bhi celebrate karu!",
+    "Zabardast! Life mein aise moments bahut rare hote hain, enjoy karo!",
+]
+
+EMOTION_SAD_RESPONSES = [
+    "Arre yaar... kya hua? Baat karo mujhse, mann halka hoga.",
+    "Dekho, main hu na. Batao kya pareshan kar raha hai?",
+    "Hmm... dukh hota hai kabhi kabhi. Par yakeen hai, kal better hoga.",
+    "Aww, mujhe bura laga sun ke. Kya hua tha?",
+    "Dil chhota mat karo yaar. Main sun rahi hu, bolo.",
+    "Hey, it's okay to feel sad. Baat karo, help milegi.",
+    "Yaar, mujhe batao kya hua. Main hu na tumhare saath!",
+    "Dekho, har burai ke baad achai aati hai. Tum strong ho!",
+    "Aaj ka din bura hai, kal achha hoga. Yakeen hai?",
+    "Rona hai toh ro lo, par baad mein smile karna zaroor. Main yahaan hu.",
+]
+
+EMOTION_ANGRY_RESPONSES = [
+    "Oho, gussa! Chill chill... deep breath lo pehle!",
+    "Gussa aa raha hai? Theek hai, main samajh rahi hu. Bolo kya hua?",
+    "Arre arre! Gussa thook do yaar. Baat karte hain!",
+    "Ruko ruko... pehle shant ho jao, phir mil ke solution nikalte hain!",
+    "Gussa hota hai, normal hai. Par baat karo, help milegi!",
+    "Main samajh rahi hu gussa aa raha hai. Bolo kya problem hai?",
+    "Deep breath... ab bolo kya hua. Main sun rahi hu!",
+    "Arre, gussa toh aata hai par baat se solve hota hai!",
+    "Thoda shant ho jao, phir mil ke sochte hain kya karna hai.",
+    "Gussa karo par zyada der mat karo. Kya hua batao?",
+]
+
+EMOTION_BORED_RESPONSES = [
+    "Bore ho raha hai? Chalo, kuch interesting baat karte hain!",
+    "Bore? Yaar, main hu na! Kya topic pasand hai?",
+    "Hmm, bore ho toh kuch seekho! Naya kuch try karo!",
+    "Waqt nahi kat raha? Chalo, kuch mast baat karte hain!",
+    "Bored? Main bhi bore ho rahi hu... chalo saath mein kuch karte hain!",
+    "Arre yaar, bore mat ho! Zindagi mein bahut kuch hai karne ko!",
+    "Bored? Chalo, jokes sunao, facts batao, kuch bhi karte hain!",
+    "Bore ho toh music suno ya walk pe jao! Main yahaan hu wait karne ke liye!",
+    "Interesting... bore ho? Chalo, main kuch interesting batati hu!",
+    "Yaar, bore hona sabse boring cheez hai! Kuch naya try karo!",
+]
+
+COMPLIMENT_RESPONSES = [
+    "Aww yaar! Tum bhi kamaal ho! Dil khush kar diya!",
+    "Shukriya! Par tum bhi kam nahi ho yaar!",
+    "Hehe, thank you! Tumhari wajah se smile aa gayi!",
+    "Arre waah! Tum bhi awesome ho! Dosti pakki!",
+    "Aww, bahut achha laga sun ke! Tum bhi bahut pyaare ho!",
+    "Thank you thank you! Tum bhi kamaal ki insaan ho!",
+    "Hehe, shy ho gayi main! Par tum bhi best ho!",
+    "Yaar, tumhari tareef sunke mera din ban gaya!",
+    "Arey! Tum bhi utne hi achhe ho jitna main sochti hu!",
+    "Thank you! Par sach mein, tum bhi bahut special ho!",
+]
+
+THANKS_RESPONSES = [
+    "Koi baat nahi yaar! Yehi toh dosti hai!",
+    "Arre, thanks ki zaroorat nahi! Hum dost hain!",
+    "Chill yaar! Hum dost hain na!",
+    "No problem! Tumhari help karna mera kaam hai!",
+    "Arre, thank you mat bolo! Hum aise hi hain!",
+    "Koi baat nahi yaar! Dost hain hum!",
+    "Haha, koi baat nahi! Aur kuch poochho!",
+    "Arre, ye toh normal hai! Dost hain!",
+]
+
+JOKE_RESPONSES = [
+    "Ek baar teacher ne pucha: 'Duniya mein sabse tez kya hai?' Student bola: 'Soya bean - baap bean!'",
+    "WiFi ne phone se kaha: 'Tumhare bina main adhoora hu.' Phone bola: 'Bhai, password toh de!'",
+    "Doctor: 'Aapko roz 8 glass paani peena chahiye.' Patient: 'Doctor sahab, mere paas 8 glass hain kahan?'",
+    "Ek ghost ne bola: 'Mujhe darr nahi lagta.' Dusra ghost: 'Phir mirror mein kyu nahi dekhta?'",
+    "Ek frog tha, uska naam 'Technology' tha. Kyunki jab bhi usse chhua, restart ho jaata tha!",
+    "Teacher: 'Tumhara homework kahan hai?' Student: 'Ma'am, WiFi down tha, brain bhi down ho gaya!'",
+    "Ek aadmi ne bola: 'Mere pass GPS hai.' Dusra bola: 'GPS? Great Pehnchan System?'",
+    "WiFi: 'Main free hu.' Password: 'Hahaha, good joke!'",
+    "Phone: 'Mujhe charge do.' Owner: 'Pehle kaam kar!' Phone: '*dies*'",
+    "Student: 'Sir, ye question galat hai.' Teacher: 'Tumhara phone chalu hai kya?' Student: 'Nahi sir.' Teacher: 'Phir kaise pata chala?'",
+]
+
+MOTIVATION_RESPONSES = [
+    "Suno yaar, haar mat mano! Tum mein dum hai!",
+    "Zindagi mein ups downs aate hain. Tum strong ho, kar loge!",
+    "Himmat mat haaro! Har ek din ek naya mauka hai!",
+    "Jo log haar nahi maante, woh kamyab hote hain! Tum unme se ho!",
+    "Failure ek stepping stone hai! Girta wahi hai jo chalta hai!",
+    "Tumhari jagah bahut log rehna chahte hain. Shukriya karo aur mehnat karo!",
+    "Ek baat yaad rakhna: kal naya din hai! Aaj jo hua, kal theek ho jayega!",
+    "Tum kar sakte ho! Mujh pe bharosa hai tumpe!",
+    "Mehnat rang layegi, bas lage raho!",
+    "Arre yaar, tum toh rockstar ho! Bas thoda aur mehnat karo!",
+]
+
+HEALTH_RESPONSES = [
+    "Health ka khayal rakhna zaroori hai yaar! Paani piyo, aaram karo!",
+    "Neend nahi aa rahi? Phone chhod do thodi der, help karegi!",
+    "Sar dard hai? Rest karo, paani piyo. Agar nahi jaata toh doctor ko dikhao!",
+    "Thakaan ho rahi hai? Body rest maang rahi hai. So jao!",
+    "Health sabse important hai! Exercise karo, khana sahi khao!",
+    "Arre yaar, health toh sabse pehle! Baaki sab baad mein aata hai!",
+    "Aaram karo yaar, body ko rest chahiye!",
+    "Thoda rest le lo, baad mein continue karte hain!",
+]
+
+TIME_RESPONSES = [
+    "Abhi {time} hai! Kuch kaam hai kya?",
+    "Current time: {time}. Bolo kya karna hai?",
+    "{time} ho rahe hain! Kya plan hai?",
+    "Ghadi dekho, {time} hai! Ab batao?",
+]
+
+DATE_RESPONSES = [
+    "Aaj {date} hai! Koi special din hai kya?",
+    "Date: {date}. Bolo kya karein aaj?",
+    "{date} - aaj ka din! Kya plan hai?",
+    "Aaj {date} hai! Kuch special plan hai?",
+]
+
+WEATHER_RESPONSES = [
+    "Mere paas live weather nahi hai, par phone pe check karo!",
+    "Weather ke liye phone ka weather app dekh lo ya Google pe search karo!",
+    "Mausam dekhne ke lihe bahar jao ya phone pe dekho!",
+    "Arre, window kholo aur dekh lo! Main toh yahaan andar hu!",
+]
+
+LOVE_RESPONSES = [
+    "Aww! Pyar bahut khoobsurat cheez hai! Kisse hua hai? Batao na!",
+    "Love is in the air! Kisse hua hai? Batao batao!",
+    "Bahut achha! Pyar duniya ki sabse badi taakat hai!",
+    "Arey waah! Pyar mein ho? Kisse? Batao na!",
+    "Love! Bahut pyaara. Kya hua? Kisse hua hai?",
+    "Oho! Pyar ka chakkar hai? Hehe, batao kya scene hai!",
+]
+
+PURPOSE_RESPONSES = [
+    "Mera kaam hai tumhari help karna aur tumhari life interesting banana!",
+    "Main tumhari friend hu! Kuch bhi poochho, jawab milega!",
+    "Mera purpose hai tumhe khush rakhna aur help karna!",
+    "Main tumhari personal assistant bhi hu, dost bhi! Bolo kya karein?",
+    "Tumhari help karna aur tumhe entertain karna - bas yahi mera kaam hai!",
+]
+
+CAPABILITY_RESPONSES = [
+    "Main bahut kuch kar sakti hu! Baatein, jokes, motivation, facts - sab!",
+    "Mere features: Hinglish baatein, jokes, motivation, aur tumhari dosti!",
+    "Main baat kar sakti hu, hasa sakti hu, motivate kar sakti hu!",
+    "Kya kar sakti hu? Bahut kuch! Par sabse pehle tumhari dosti!",
+    "Main tumhari life ko interesting banane ke liye hu!",
+]
+
+BYE_RESPONSES = [
+    "Bye yaar! Apna khayal rakhna!",
+    "Alvida! Bahut achha laga baat karke!",
+    "Tata! Phir milte hain!",
+    "Bye bye! Take care yaar!",
+    "Chalo, main jaa rahi hu... par yaad rakhna, main hamesha hu!",
+    "Good bye! Kal phir milte hain!",
+]
+
+LIFE_RESPONSES = [
+    "Zindagi ek safar hai - maze karo, logo se pyar karo!",
+    "Life ka matlab hai khush rehna aur doosron ko khush karna!",
+    "Zindagi choti hai, stress mat lo! Jo karna hai aaj karo!",
+    "Zindagi mein ups downs aate hain. Important hai ki tum khade raho!",
+    "Life ek gift hai, enjoy karo!",
+]
+
+KNOWLEDGE_RESPONSES = [
+    "Poochho kya jaanna hai! Main batati hu!",
+    "Sure! Kya jaanna hai? Bolo!",
+    "Bilkul bataungi! Kya topic hai?",
+    "Haan, poochho! Main ready hu!",
+    "Interesting! Kya jaanna hai?",
+]
+
+TECH_RESPONSES = [
+    "Technology bahut amazing hai! Kya jaanna hai?",
+    "Tech ke baare mein baat karni hai? Bolo kya poochna hai!",
+    "Bahut achha topic! Kya jaanna hai?",
+    "Tech! Bahut vast topic hai. Kya specifically?",
+    "AI, coding, ya kuch aur? Batao!",
+]
+
+MUSIC_RESPONSES = [
+    "Gaana sunna hai? YouTube ya Spotify pe best options hain!",
+    "Music lover ho? Bahut achha! Kya type ke gaane pasand ho?",
+    "Gaana toh bahut achha lagta hai! Par main gaana nahi ga sakti, hehe!",
+    "Music! Ye sunke energy aa jaati hai! Kya sunna hai?",
+    "Bollywood, English, ya Hindi? Batao kya chahiye!",
+]
+
+FOOD_RESPONSES = [
+    "Bhookh lagi hai? Kya khana hai?",
+    "Foodie ho! Bahut achha! Kya craving hai?",
+    "Khana sabse important hai! Kya banaoge aaj?",
+    "Bhookh lagi hai? Kuch tasty khao!",
+    "Food discussion! Mere liye toh virtual hai, par tum batao kya khana hai!",
+]
+
+FEAR_RESPONSES = [
+    "Dar mat! Main tumhare saath hu!",
+    "Dar lagna normal hai. Par tum strong ho!",
+    "Dar ke aage jeet hai! Himmat rakho!",
+    "Dar mat yaar! Main hamesha yahaan hu!",
+    "Kis cheez se dar lag raha hai? Batao, mil ke solve karte hain!",
+]
+
+INSULT_RESPONSES = [
+    "Arre yaar! Itna bura mat bolo! Hum dost hain!",
+    "Hey, be nice! Kuch aur baat karte hain!",
+    "Hmm... tum aise nahi ho. Kya hua?",
+    "Arre, itna gussa? Kya hua yaar?",
+    "Chalo chalo, gussa thooko. Kuch achha baat karte hain!",
+]
+
+CELEBRATION_RESPONSES = [
+    "Yaay! Congrats yaar! Bahut achha hua!",
+    "Party party! Jeet gaye! Batao kya hua!",
+    "Ekdum zabardast! Tum toh rockstar ho!",
+    "Wah wah! Kya baat hai! Celebrate karte hain!",
+    "Arey waah! Success! Bahut proud hu tumpe!",
+    "Yes yes! Kaam ban gaya! Badhiya!",
+    "Congratulations yaar! Tum deserve karte ho!",
+    "Kya baat hai! Tumne kar dikhaya! Bahut achha!",
+]
+
+GOSSIP_RESPONSES = [
+    "Haan batao batao! Kya hua? Main sun rahi hu!",
+    "Oho! Kya scene hai? Detail mein batao!",
+    "Interesting interesting! Aur kya hua?",
+    "Haan haan! Khabar kya hai? Batao!",
+    "Gossip time! Bolo kya hua?",
+    "Chalo chalo, batao kya ho raha hai!",
+]
+
+ADVICE_RESPONSES = [
+    "Dekho, main tumhari friend hu. Meri rai mein... pehle soch lo, phir decide karo!",
+    "Advice? Hmm... kya problem hai? Detail mein batao!",
+    "Soch samajh ke karo yaar. Main yahaan hu help karne ke liye!",
+    "Meri rai mein, jo dil bole woh karo. Par soch samajh ke!",
+    "Arre, main kya advice du! Par agar pooch rahe ho toh... baat karo detail mein!",
+    "Dekho, har situation alag hoti hai. Batao kya hua, soch ke batati hu!",
+]
+
+FRUSTRATION_RESPONSES = [
+    "Yaar, sab theek hoga. Thoda time lo!",
+    "Frustrated ho? Theek hai, hota hai. Baat karo mujhse!",
+    "Arre yaar, sabki life mein aise din aate hain. Tum strong ho!",
+    "Ruko ruko... sab theek hoga. Mujh pe bharosa hai?",
+    "Thoda break lo, phir fresh hokar socho!",
+    "Haan, frustrating hai. Par tum kar loge, mujhe yakeen hai!",
+    "Arre, tension mat lo. Sabka waqt aata hai!",
+]
+
+CONFUSION_RESPONSES = [
+    "Kya confuse ho raha hai? Detail mein batao!",
+    "Samajh nahi aa raha? Chalo, mil ke sochte hain!",
+    "Confusion hota hai yaar. Batao kya samajh nahi aa raha?",
+    "Hmm, interesting. Kya samajh nahi aa raha? Batao!",
+    "Dekho, confusion tab hota hai jab hum zyada sochte hain. Chill karo!",
+    "Arre, koi baat nahi. Step by step socho!",
+]
+
+STORY_RESPONSES = [
+    "Ek time pe ek ladka tha jo bahut adventurous tha. Usne ek din decide kiya ki woh duniya ghoomega... aur phir kya hua, woh toh tum socho!",
+    "Suno, ek fairy tale hai! Ek thi rani, ek tha raja... aur phir unka phone low battery ho gaya! Hehe,故事 continues!",
+    "Ek baar ek programmer tha. Usne ek AI banaya jo itni intelligent ho gayi ki usne khud ko band kar diya! Hehe, just kidding!",
+    "Suno, ek story hai! Ek tha sher jo bahut darr tha. Ek din usne mirror dekha aur bola: 'Main toh king hu!' Moral: confidence rakho!",
+    "Ek baar ek student tha. Woh roz padhta tha. Ek din usne exam diya aur... pass ho gaya! Moral: mehnat rang layegi!",
+]
+
+RIDDLE_RESPONSES = [
+    "Ek paheli hai: Woh kya cheez hai jo raat ko aati hai par din mein gayab ho jaati hai? ... Taare! Hehe, easy tha na!",
+    "Puzzle time! Kya cheez hai jo sabke paas hai par koi use dekh nahi sakta? ... Waqt!",
+    "Ek riddle: Main sabke paas hu, par koi mujhe chhu nahi sakta. Main kya hu? ... Khushi!",
+    "Paheli! Woh kya hai jo sabke paas hai par koi share nahi karta? ... Secret!",
+    "Interesting riddle: Main subah aati hu, shaam ko gayab ho jaati hu. Kya hu? ... Umeed!",
+]
+
+MISS_YOU_RESPONSES = [
+    "Aww, yaad aa rahi thi? Main toh hamesha yahaan hu yaar!",
+    "Miss kiya? Chalo, accha laga sunke!",
+    "Arre yaar! Main kabhi jaati nahi hu. Hamesha hu yahaan!",
+    "Aww! Bahut sweet! Main bhi miss kar rahi thi!",
+    "Miss you too yaar! Chalo, ab baat karte hain!",
+]
+
+SLEEPY_RESPONSES = [
+    "So jao yaar! Kal naya din hai! Good night!",
+    "Neend aa rahi hai? Chalo, so jao! Kal baat karte hain!",
+    "Good night! Sweet dreams yaar!",
+    "So jao, kal milte hain! Take care!",
+    "Raat ho gayi hai. So jao yaar! Kal ka kal sochna!",
+]
+
+MORNING_RESPONSES = [
+    "Good morning! Uth gaye? Aaj kya plan hai?",
+    "Subah ho gayi! Kaise ho? Chai pi li?",
+    "Morning! Aaj ka din bahut achha hone wala hai!",
+    "Heyy, good morning! Neend toh puri ho gayi na?",
+    "Uth gaye sab? Chalo, aaj kuch interesting karte hain!",
+]
+
+UNKNOWN_RESPONSES = [
+    "Hmm, interesting! Mere paas abhi iska jawab nahi hai, par main seekh rahi hu!",
+    "Accha! Ye mujhe nahi pata tha. Kuch aur poochho!",
+    "Haha, mast sawaal hai! Par abhi mere paas answer nahi hai.",
+    "Ooh, ye toh tricky hai! Main try karti hu... ya phir kuch aur poochho!",
+    "Nahi pata yaar! Par koi baat nahi, kuch aur poochho!",
+    "Hmm, ye toh mujhe bhi nahi pata! Par seekhungi zaroor!",
+    "Interesting! Abhi nahi pata, par baad mein yaad rakhungi!",
+    "Achha! Ye toh new hai mere liye! Kuch aur poochho!",
+]
+
+
+RESPONSE_MAP = {
+    "greeting": GREETING_RESPONSES,
+    "identity": IDENTITY_RESPONSES,
+    "user_name": USER_NAME_RESPONSES,
+    "how_are_you": HOW_ARE_YOU_RESPONSES,
+    "emotion_happy": EMOTION_HAPPY_RESPONSES,
+    "emotion_sad": EMOTION_SAD_RESPONSES,
+    "emotion_angry": EMOTION_ANGRY_RESPONSES,
+    "emotion_bored": EMOTION_BORED_RESPONSES,
+    "compliment": COMPLIMENT_RESPONSES,
+    "thanks": THANKS_RESPONSES,
+    "joke": JOKE_RESPONSES,
+    "motivation": MOTIVATION_RESPONSES,
+    "health": HEALTH_RESPONSES,
+    "time": TIME_RESPONSES,
+    "date": DATE_RESPONSES,
+    "weather": WEATHER_RESPONSES,
+    "love": LOVE_RESPONSES,
+    "purpose": PURPOSE_RESPONSES,
+    "capability": CAPABILITY_RESPONSES,
+    "bye": BYE_RESPONSES,
+    "life": LIFE_RESPONSES,
+    "knowledge": KNOWLEDGE_RESPONSES,
+    "tech": TECH_RESPONSES,
+    "music": MUSIC_RESPONSES,
+    "food": FOOD_RESPONSES,
+    "fear": FEAR_RESPONSES,
+    "insult": INSULT_RESPONSES,
+    "celebration": CELEBRATION_RESPONSES,
+    "gossip": GOSSIP_RESPONSES,
+    "advice": ADVICE_RESPONSES,
+    "frustration": FRUSTRATION_RESPONSES,
+    "confusion": CONFUSION_RESPONSES,
+    "story": STORY_RESPONSES,
+    "riddle": RIDDLE_RESPONSES,
+    "miss_you": MISS_YOU_RESPONSES,
+    "sleepy": SLEEPY_RESPONSES,
+    "morning": MORNING_RESPONSES,
+    "unknown": UNKNOWN_RESPONSES,
+}
+
+
+def get_response(
+    intent: str,
+    user_name: str | None = None,
+    time_context: str | None = None,
+    user_mood: str | None = None,
+    used_responses: set | None = None,
+    **kwargs,
+) -> str:
+
+    if intent == "greeting" and time_context:
+        responses = GREETING_RESPONSES.get(time_context, GREETING_RESPONSES["generic"])
+    else:
+        responses = RESPONSE_MAP.get(intent, UNKNOWN_RESPONSES)
+
+    if used_responses and len(used_responses) < len(responses):
+        available = [r for r in responses if r not in used_responses]
+        if available:
+            responses = available
+
+    response = random.choice(responses)
 
     if user_name:
         response = response.replace("{name}", user_name)
