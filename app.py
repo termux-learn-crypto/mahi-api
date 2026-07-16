@@ -25,11 +25,16 @@ def chat():
     message = data["message"]
 
     result = engine.chat(user_id, message)
-    return jsonify({
+    response_data = {
         "response": result["response"],
         "intent": result["intent"],
         "emotion": result["emotion"],
-    })
+    }
+
+    if "command" in result:
+        response_data["command"] = result["command"]
+
+    return jsonify(response_data)
 
 
 @app.route("/session/<user_id>", methods=["DELETE"])

@@ -84,16 +84,8 @@ def fuzzy_match(query: str, target: str, threshold: int = 70) -> bool:
     ratio = SequenceMatcher(None, query.lower(), target.lower()).ratio()
     if ratio * 100 >= threshold:
         return True
-    q_words = query.lower().split()
-    t_words = target.lower().split()
-    for qw in q_words:
-        if len(qw) < 4:
-            continue
-        for tw in t_words:
-            if len(tw) < 4:
-                continue
-            if SequenceMatcher(None, qw, tw).ratio() * 100 >= threshold:
-                return True
+    if query.lower().startswith(target.lower()) or target.lower().startswith(query.lower()):
+        return True
     return False
 
 

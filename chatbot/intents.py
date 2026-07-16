@@ -248,6 +248,12 @@ INTENTS = [
         phrases=["translate karo", "english mein bolo", "hindi mein bolo", " matlab kya hai", "ka matlab kya"],
         priority=18,
     ),
+    Intent(
+        name="mobile_command",
+        keywords=["youtube", "whatsapp", "call", "sms", "alarm", "open", "kholo", "brightness", "wifi", "bluetooth", "volume", "share", "app", "chalao", "play store", "spotify", "instagram", "facebook", "chrome", "camera", "gallery", "maps", "settings"],
+        phrases=["youtube pe", "whatsapp pe", "call karo", "alarm lagao", "brightness badhao", "wifi on", "bluetooth on", "volume up", "app kholo", "kholo", "share karo", "chalao"],
+        priority=12,
+    ),
 ]
 
 
@@ -261,7 +267,7 @@ def classify_intent(text: str) -> str:
         for phrase in intent.phrases:
             if phrase in text_lower:
                 score += 30
-            elif len(phrase) > 5 and fuzzy_match(text_lower, phrase, 80):
+            elif len(phrase) > 8 and fuzzy_match(text_lower, phrase, 90):
                 score += 15
 
         for keyword in intent.keywords:

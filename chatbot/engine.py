@@ -11,6 +11,7 @@ from .games import get_would_you_rather, get_two_truths_lie, get_tongue_twister
 from .names import get_name_meaning
 from .calculator import calculate, solve_math
 from .translator import translate
+from .mobile import detect_mobile_command
 
 
 class ChatEngine:
@@ -32,7 +33,7 @@ class ChatEngine:
         user_mood = detect_emotion_intensity(message)
         time_context = self._get_time_context()
 
-        response = self._generate_response(
+        response, command = self._generate_response(
             intent, message, session, user_name, time_context, user_mood
         )
 
@@ -42,7 +43,7 @@ class ChatEngine:
         session.add_message("user", message, intent=intent, emotion=user_mood["emotion"])
         session.add_message("assistant", response, intent=intent, emotion=assistant_emotion)
 
-        return {
+        result = {
             "response": response,
             "intent": intent,
             "emotion": assistant_emotion,
@@ -50,33 +51,41 @@ class ChatEngine:
             "mood_intensity": user_mood["intensity"],
         }
 
+        if command:
+            result["command"] = command
+
+        return result
+
     def clear_session(self, user_id: str) -> bool:
         return self.sessions.delete_session(user_id)
 
     def _generate_response(
         self, intent: str, message: str, session, user_name, time_context, user_mood
-    ) -> str:
+    ) -> tuple[str, dict | None]:
 
         if intent == "daily_fact":
-            return self._handle_fact(message)
+            return self._handle_fact(message), None
         elif intent == "quote":
-            return self._handle_quote(message)
+            return self._handle_quote(message), None
         elif intent == "tongue_twister":
-            return self._handle_tongue_twister(message)
+            return self._handle_tongue_twister(message), None
         elif intent == "name_meaning":
-            return self._handle_name_meaning(message)
+            return self._handle_name_meaning(message), None
         elif intent == "would_you":
-            return self._handle_would_you()
+            return self._handle_would_you(), None
         elif intent == "truth_lie":
-            return self._handle_truth_lie()
+            return self._handle_truth_lie(), None
         elif intent == "time":
-            return self._handle_time()
+            return self._handle_time(), None
         elif intent == "date":
-            return self._handle_date()
+            return self._handle_date(), None
         elif intent == "calculator":
-            return self._handle_calculator(message)
+            return self._handle_calculator(message), None
         elif intent == "translator":
-            return self._handle_translator(message)
+            return self._handle_translator(message), None
+        elif intent == "mobile_command":
+            cmd = detect_mobile_command(message)
+            return self._handle_mobile_command(message), cmd
 
         return get_response(
             intent,
@@ -84,7 +93,7 @@ class ChatEngine:
             time_context=time_context,
             user_mood=user_mood["emotion"],
             used_responses=session.used_responses,
-        )
+        ), None
 
     def _handle_fact(self, message: str) -> str:
         categories = ["science", "india", "history", "tech", "animals"]
@@ -228,6 +237,12 @@ class ChatEngine:
 
         return f"Mujhe \"{msg}\" translate karna nahi aata. Par koshish karunga next time! 😊"
 
+    def _handle_mobile_command(self, message: str) -> str:
+        command = detect_mobile_command(message)
+        if command:
+            return command["response"]
+        return "Kya karna hai? Batao command! 📱"
+
     def _get_time_context(self) -> str:
         hour = datetime.now().hour
         if 5 <= hour < 12:
@@ -293,6 +308,7 @@ class ChatEngine:
             "affirmation": "happy",
             "calculator": "neutral",
             "translator": "neutral",
+            "mobile_command": "neutral",
             "unknown": "confused",
         }
         return emotion_map.get(intent, "neutral")
