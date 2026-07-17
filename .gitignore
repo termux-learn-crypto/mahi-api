@@ -8,3 +8,11 @@ venv/
 dist/
 build/
 data/
+uploads/
+logs/
+*.db
+*.log
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
