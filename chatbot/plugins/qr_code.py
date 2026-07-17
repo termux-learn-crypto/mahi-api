@@ -10,7 +10,7 @@ class QRCodePlugin(Plugin):
     def __init__(self):
         super().__init__(
             name="qr_code",
-            description="Generate QR codes from text, URLs, or any data - returns base64 or saves to file",
+            description="Generate QR codes from text, URLs, or any data",
             version="1.0.0",
         )
         self.commands = ["qr", "qrcode", "qr code", "scan"]
@@ -39,43 +39,36 @@ class QRCodePlugin(Plugin):
             }
 
         try:
-            import qrcode
-            from qrcode.image.styledpil import StyledPilImage
+            import segno
         except ImportError:
-            return {"response": "QR code library install nahi hai! Admin se bolo: `pip install qrcode[pil]`"}
+            return {"response": "QR code library install nahi hai!"}
 
         try:
-            qr = qrcode.QRCode(
-                version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_H,
-                box_size=10,
-                border=4,
-            )
-            qr.add_data(content)
-            qr.make(fit=True)
+            qr = segno.make(content, error="H")
+            terminal = qr.terminal(border=1)
 
-            img = qr.make_image(fill_color="#1a1a2e", back_color="white")
-            img = img.convert("RGB")
+            png_buf = io.BytesIO()
+            qr.save(png_buf, kind="png", scale=10, border=4)
+            png_buf.seek(0)
+            img_base64 = base64.b64encode(png_buf.read()).decode("utf-8")
 
-            buffer = io.BytesIO()
-            img.save(buffer, format="PNG")
-            buffer.seek(0)
-            img_base64 = base64.b64encode(buffer.read()).decode("utf-8")
+            svg_buf = io.BytesIO()
+            qr.save(svg_buf, kind="svg", svgclass="qrcode", xmldecl=False)
+            svg_data = svg_buf.getvalue().decode("utf-8")
 
             data_dir = Path(__file__).parent.parent.parent / "data" / "qrcodes"
             data_dir.mkdir(parents=True, exist_ok=True)
-            filename = f"qr_{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+            filename = f"qr_{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.svg"
             filepath = data_dir / filename
-
-            img.save(str(filepath), format="PNG")
+            filepath.write_text(svg_data, encoding="utf-8")
 
             content_preview = content[:60] + "..." if len(content) > 60 else content
             return {
                 "response": (
                     f"📱 QR Code ban gaya!\n\n"
                     f"📝 Content: {content_preview}\n"
-                    f"💾 Saved: data/qrcodes/{filename}\n"
-                    f"🖼 Base64: {img_base64[:50]}... (full data response mein hai)\n\n"
+                    f"💾 SVG saved: data/qrcodes/{filename}\n"
+                    f"🖼 PNG base64: {img_base64[:50]}... (response mein full hai)\n\n"
                     f"Scan karne ke liye koi bhi QR scanner use karo!"
                 ),
                 "data": {
@@ -83,12 +76,13 @@ class QRCodePlugin(Plugin):
                     "filename": filename,
                     "filepath": str(filepath),
                     "base64": img_base64,
-                    "size": img.size,
+                    "svg": svg_data,
+                    "terminal": terminal,
                 },
             }
 
         except Exception as e:
-            return {"response": f"QR code banane mein dikkat aa rahi hai! 😔 Error: {str(e)[:100]}"}
+            return {"response": f"QR code banane mein dikkat aa rahi hai! Error: {str(e)[:100]}"}
 
     def _extract_content(self, message: str) -> str | None:
         msg = message.strip()
