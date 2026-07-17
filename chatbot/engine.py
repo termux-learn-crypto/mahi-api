@@ -52,12 +52,21 @@ class ChatEngine:
             from .plugins.music import MusicPlugin
             from .plugins.email_plugin import EmailPlugin
             from .plugins.dictionary import DictionaryPlugin
+            from .plugins.calendar_plugin import CalendarPlugin
+            from .plugins.gmail import GmailPlugin
+            from .plugins.smart_home import SmartHomePlugin
+            from .plugins.fitness import FitnessPlugin
+            from .plugins.recipes import RecipesPlugin
+            from .plugins.shopping import ShoppingPlugin
+            from .plugins.travel import TravelPlugin
 
             for plugin_class in [
                 WeatherPlugin, NewsPlugin, NotesPlugin, TodoPlugin,
                 RemindersPlugin, CurrencyPlugin, UnitConverterPlugin,
                 PasswordGenPlugin, QRCodePlugin, NavigationPlugin,
                 MusicPlugin, EmailPlugin, DictionaryPlugin,
+                CalendarPlugin, GmailPlugin, SmartHomePlugin,
+                FitnessPlugin, RecipesPlugin, ShoppingPlugin, TravelPlugin,
             ]:
                 self.plugin_manager.register(plugin_class())
         except Exception:

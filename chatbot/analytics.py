@@ -180,3 +180,119 @@ class Analytics:
             "event_breakdown": {r["event_type"]: r["count"] for r in events},
             "last_active": last_active,
         }
+
+    def predict_usage(self, user_id: str = None) -> dict:
+        conn = get_db()
+
+        if user_id:
+            hourly = conn.execute("""
+                SELECT strftime('%H', created_at) as hour, COUNT(*) as count
+                FROM analytics_events WHERE user_id=?
+                GROUP BY hour ORDER BY hour
+            """, (user_id,)).fetchall()
+        else:
+            hourly = conn.execute("""
+                SELECT strftime('%H', created_at) as hour, COUNT(*) as count
+                FROM analytics_events
+                GROUP BY hour ORDER BY hour
+            """).fetchall()
+
+        hourly_data = {r["hour"]: r["count"] for r in hourly}
+
+        predicted_peak = max(hourly_data.items(), key=lambda x: x[1])[0] if hourly_data else "12"
+
+        daily = conn.execute("""
+            SELECT strftime('%w', created_at) as day, COUNT(*) as count
+            FROM analytics_events
+            GROUP BY day ORDER BY day
+        """).fetchall()
+
+        daily_data = {r["day"]: r["count"] for r in daily}
+        day_names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        predicted_busy_day = day_names[int(max(daily_data.items(), key=lambda x: x[1])[0])] if daily_data else "Unknown"
+
+        conn.close()
+
+        return {
+            "predicted_peak_hour": f"{predicted_peak}:00",
+            "predicted_busy_day": predicted_busy_day,
+            "hourly_pattern": hourly_data,
+            "daily_pattern": {day_names[int(k)]: v for k, v in daily_data.items()},
+            "confidence": min(1.0, len(hourly) / 24),
+        }
+
+    def get_trend_report(self, days: int = 7) -> dict:
+        conn = get_db()
+        daily_stats = []
+
+        for i in range(days):
+            date = (datetime.now() - timedelta(days=i)).date().isoformat()
+            next_date = (datetime.now() - timedelta(days=i-1)).date().isoformat()
+
+            events = conn.execute(
+                "SELECT COUNT(*) as c FROM analytics_events WHERE created_at >= ? AND created_at < ?",
+                (date, next_date)
+            ).fetchone()["c"]
+
+            errors = conn.execute(
+                "SELECT COUNT(*) as c FROM api_metrics WHERE status_code >= 400 AND created_at >= ? AND created_at < ?",
+                (date, next_date)
+            ).fetchone()["c"]
+
+            avg_latency = conn.execute(
+                "SELECT AVG(duration_ms) as avg FROM api_metrics WHERE created_at >= ? AND created_at < ?",
+                (date, next_date)
+            ).fetchone()["avg"] or 0
+
+            daily_stats.append({
+                "date": date,
+                "events": events,
+                "errors": errors,
+                "avg_latency": round(avg_latency, 2),
+            })
+
+        conn.close()
+
+        if len(daily_stats) >= 2:
+            recent = daily_stats[0]["events"]
+            previous = daily_stats[1]["events"]
+            growth = ((recent - previous) / max(previous, 1)) * 100
+        else:
+            growth = 0
+
+        return {
+            "period": f"Last {days} days",
+            "daily_stats": daily_stats,
+            "growth_rate": round(growth, 1),
+            "total_events": sum(d["events"] for d in daily_stats),
+            "total_errors": sum(d["errors"] for d in daily_stats),
+        }
+
+    def get_performance_report(self) -> dict:
+        conn = get_db()
+
+        p95 = conn.execute(
+            "SELECT duration_ms FROM api_metrics ORDER BY duration_ms DESC LIMIT 1"
+        ).fetchone()
+
+        p99 = conn.execute(
+            "SELECT duration_ms FROM api_metrics ORDER BY duration_ms DESC LIMIT 10"
+        ).fetchall()
+
+        uptime = conn.execute(
+            "SELECT COUNT(*) as total, SUM(CASE WHEN status_code < 400 THEN 1 ELSE 0 END) as success FROM api_metrics"
+        ).fetchone()
+
+        total = uptime["total"] or 1
+        success = uptime["success"] or 0
+
+        conn.close()
+
+        return {
+            "p95_latency": p95["duration_ms"] if p95 else 0,
+            "p99_latency": p99[0]["duration_ms"] if p99 else 0,
+            "uptime_percent": round((success / total) * 100, 2),
+            "total_requests": total,
+            "successful_requests": success,
+            "failed_requests": total - success,
+        }

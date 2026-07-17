@@ -254,10 +254,57 @@ INTENTS = [
         phrases=["youtube pe", "whatsapp pe", "call karo", "alarm lagao", "brightness badhao", "wifi on", "bluetooth on", "volume up", "app kholo", "kholo", "share karo", "chalao"],
         priority=12,
     ),
+    Intent(
+        name="calendar",
+        keywords=["calendar", "event", "meeting", "schedule", "appointment", "remind"],
+        phrases=["calendar mein", "add event", "upcoming events", "meeting hai", "schedule banao"],
+        priority=15,
+    ),
+    Intent(
+        name="gmail",
+        keywords=["email", "mail", "gmail", "inbox", "compose"],
+        phrases=["check email", "send email", "read emails", "email inbox", "mail bhejo"],
+        priority=15,
+    ),
+    Intent(
+        name="smart_home",
+        keywords=["light", "ac", "fan", "lock", "door", "thermostat", "smart home", "bulb"],
+        phrases=["lights on", "ac on", "fan speed", "lock door", "smart home control"],
+        priority=14,
+    ),
+    Intent(
+        name="fitness",
+        keywords=["steps", "calories", "workout", "exercise", "water", "fitness", "gym", "run"],
+        phrases=["track steps", "calories count", "workout plan", "water intake", "fitness summary"],
+        priority=14,
+    ),
+    Intent(
+        name="recipes",
+        keywords=["recipe", "cooking", "khana", "banana", "food", "dish", "meal"],
+        phrases=["recipe batao", "kya khayein", "cooking tips", "recipe suggest"],
+        priority=13,
+    ),
+    Intent(
+        name="shopping",
+        keywords=["buy", "price", "shop", "discount", "offer", "sale", "cheap", "kharid"],
+        phrases=["price check", "buy karo", "shop online", "discount hai", "offer batao"],
+        priority=13,
+    ),
+    Intent(
+        name="travel",
+        keywords=["travel", "trip", "flight", "hotel", "vacation", "visit", "ghumna", "tour", "beach", "mountain", "destination"],
+        phrases=["plan trip", "flight book", "hotel booking", "travel plan", "vacation suggest", "beach destination", "mountain trip"],
+        priority=16,
+    ),
 ]
 
 
 def classify_intent(text: str) -> str:
+    result = classify_intent_with_confidence(text)
+    return result["intent"]
+
+
+def classify_intent_with_confidence(text: str) -> dict:
     text_lower = text.lower().strip()
     words = set(text_lower.split())
     scores: dict[str, int] = {}
@@ -283,6 +330,24 @@ def classify_intent(text: str) -> str:
             scores[intent.name] = score
 
     if not scores:
-        return "unknown"
+        return {"intent": "unknown", "confidence": 0.0, "scores": {}}
 
-    return max(scores, key=scores.get)
+    best_intent = max(scores, key=scores.get)
+    best_score = scores[best_intent]
+
+    total_score = sum(scores.values())
+    confidence = best_score / total_score if total_score > 0 else 0.0
+
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    alternatives = [
+        {"intent": name, "score": score, "confidence": round(score / total_score, 3)}
+        for name, score in sorted_scores[1:4]
+    ]
+
+    return {
+        "intent": best_intent,
+        "confidence": round(confidence, 3),
+        "score": best_score,
+        "alternatives": alternatives,
+        "all_scores": {k: v for k, v in sorted_scores},
+    }
